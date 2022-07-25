@@ -162,11 +162,10 @@ Figure 3
 h <- hist(mns, 
        main="Averages of 40 exponentials", 
        xlab = "Average",
-       col="firebrick2")
+       col="firebrick2", freq = FALSE)
 
 xfit <- seq(min(mns), max(mns), length = 40) 
 yfit <- dnorm(xfit, mean = mean(mns), sd = sd(mns)) 
-yfit <- yfit * diff(h$mids[1:2]) * length(mns) 
 
 lines(xfit, yfit, col = "dodgerblue4", lwd = 3)
 ```
