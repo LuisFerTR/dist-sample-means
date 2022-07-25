@@ -1,0 +1,173 @@
+---
+title: "Distribution of exponential sample mean"
+author: "Luis Talavera"
+date: "July 25th 2022"
+output: pdf_document
+header-includes:
+ \usepackage{float}
+ \floatplacement{figure}{H}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, comment="")
+```
+
+# Synopsis
+The exponential distribution is a continuous probability distribution that often concerns the amount of
+time until some specific event happens. The objective of this project is to build a distribution by sampling 40 exponentials, calcualte its mean, repeat it one thousand times and compare the
+distribution obtained with the Central Limit Theorem.
+
+# Simulations
+First, we will build the distribution of averages of 40 exponentials using one thousand simulations. Lambda will be set to 0.2 for all the simulations.
+
+```{r simulations}
+n <- 1000
+lambda <- 0.2
+mns <- NULL
+
+for (i in 1 : n) mns = c(mns, mean(rexp(40,lambda)))
+```
+
+```{r, fig.height=3.5,fig.width=5.5, echo=FALSE, fig.cap="Distribution of exponential sample mean",fig.pos="H"}
+hist(mns, 
+     main="Averages of 40 exponentials", 
+     xlab = "Average",
+     col="firebrick2")
+```
+
+The mean of exponential distribution is given by $\mu = \frac{1}{\lambda}$, which will be the same as
+our expected mean therefore our *theorical mean*
+will be
+```{r}
+tmean <- 1/lambda
+tmean
+```
+
+
+Now, we calculate the *sample mean* following the formula $$\overline{x} = \frac{\Sigma x_i}{n}$$
+```{r}
+smean <- round(sum(mns)/n, 3) # 1000
+smean
+```
+
+We can see the difference between theorical mean and sample mean is too small, they are very close to each other.
+
+```{r, echo=FALSE, fig.height=3.5,fig.width=5.5, fig.cap="Figure 2. Theorical mean vs sample mean",fig.pos="H"}
+hist(mns, 
+     main="Averages of 40 exponentials", 
+     xlab = "Averages",
+     col="firebrick2")
+
+abline(v=c(tmean,smean), 
+       col = c("blue4","chartreuse"), 
+       lty=c(1,2), 
+       lwd=c(3,2))
+
+legend("topright", 
+       legend = c("Theorical mean", "Sample mean"), 
+       col = c("blue4","chartreuse"),
+       lty = c(1,2),
+       lwd=c(3,2),
+       cex = 0.8)
+```
+
+The variance of exponential distribution is given by $\sigma^2 = \frac{1}{\lambda^2}$, and the variance of a sample mean is $${Var}(\overline{X}) = \frac{\sigma^2}{n}$$ hence our *theorical variance*
+will be
+```{r}
+tvar <- round(1/(lambda^2)/n,3)
+tvar
+```
+
+
+After that, we calculate the *sample variance* by the following formula $$s^2 = \frac{\Sigma (x_i-\overline{x})^2}{n-1}$$
+```{r}
+svar <- round(sum((mns-smean)^2)/(n-1), 2)
+svar
+```
+
+We can see the difference between theorical variance and sample variance is also too small.
+
+Up to this point, we can see that the distribution obtained is approximately normal. And the central 
+limit theorem proves this to be true since the theorem states that the distribution of sample means 
+becomes a normal distribution as the sample size increases.
+
+If we draw a normal curve and overlay it on our distribution, we can observe that they match almost perfectly, giving us visual proof that the distribution obtained is approximately normal.
+
+```{r, fig.cap="Figure 3. Normal curve over histogram", fig.pos="H"}
+h <- hist(mns, 
+       main="Averages of 40 exponentials", 
+       xlab = "Average",
+       col="firebrick2", freq = FALSE)
+
+xfit <- seq(min(mns), max(mns), length = 40) 
+yfit <- dnorm(xfit, mean = mean(mns), sd = sd(mns)) 
+
+lines(xfit, yfit, col = "dodgerblue4", lwd = 3)
+```
+
+Finally I would like to highlight the fact that we had to use one thousand simulations because the exponential distribution is extremely skewed to the left, this implies a larger sample size so that the distribution of sample means approximates the normal distribution.
+
+$$\pagebreak$$
+
+# Appendix
+Theorical mean
+```{r, echo = TRUE}
+tmean <- 1/lambda
+```
+
+Sample mean
+```{r, echo=TRUE}
+smean <- round(sum(mns)/n, 3) # 1000
+```
+
+Theorical variance
+```{r, echo=TRUE}
+tvar <- round(1/(lambda^2)/n,3)
+```
+
+Sample variance
+```{r, echo = TRUE}
+svar <- round(sum((mns-smean)^2)/(n-1), 3)
+```
+Figure 1
+```{r, fig.height=3.5,fig.width=5.5, fig.show="hide", echo=TRUE}
+hist(mns, 
+     main="Averages of 40 exponentials", 
+     xlab = "Average",
+     col="firebrick2")
+```
+
+Figure 2
+```{r , fig.height=3.5,fig.width=5.5, fig.show="hide", echo=TRUE}
+hist(mns, 
+     main="Averages of 40 exponentials", 
+     xlab = "Averages",
+     col="firebrick2")
+
+abline(v=c(tmean,smean), 
+       col = c("blue4","chartreuse"), 
+       lty=c(1,2), 
+       lwd=c(3,2))
+
+legend("topright", 
+       legend = c("Theorical mean", "Sample mean"), 
+       col = c("blue4","chartreuse"),
+       lty = c(1,2),
+       lwd=c(3,2),
+       cex = 0.8)
+```
+
+Figure 3
+```{r, fig.show="hide", echo = TRUE}
+h <- hist(mns, 
+       main="Averages of 40 exponentials", 
+       xlab = "Average",
+       col="firebrick2")
+
+xfit <- seq(min(mns), max(mns), length = 40) 
+yfit <- dnorm(xfit, mean = mean(mns), sd = sd(mns)) 
+yfit <- yfit * diff(h$mids[1:2]) * length(mns) 
+
+lines(xfit, yfit, col = "dodgerblue4", lwd = 3)
+```
+
